@@ -105,6 +105,24 @@ def generate_w_vectors(network_pkl, seeds):
 
 #----------------------------------------------------------------------------
 
+def generate_images_from_w_vectors(network_pkl, w_vectors_file):
+    print('Loading networks from "%s"...' % network_pkl)
+    _G, _D, Gs = pretrained_networks.load_networks(network_pkl)
+    all_w = np.load(w_vectors_file)
+
+    Gs_syn_kwargs = dnnlib.EasyDict()
+    Gs_syn_kwargs.output_transform = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+    Gs_syn_kwargs.randomize_noise = False
+    Gs_syn_kwargs.minibatch_size = minibatch_size
+
+    print('Generating images...')
+    all_images = Gs.components.synthesis.run(all_w, **Gs_syn_kwargs) # [minibatch, height, width, channel]
+    for i, img in enumerate(all_images):
+        PIL.Image.fromarray(img[0], 'RGB').save(dnnlib.make_run_dir_path('img%04d.png' % i))
+
+
+#----------------------------------------------------------------------------
+
 def _parse_num_range(s):
     '''Accept either a comma separated list of numbers 'a,b,c' or a range 'a-c' and return as a list of ints.'''
 
@@ -159,10 +177,15 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_style_mixing_example.add_argument('--truncation-psi', type=float, help='Truncation psi (default: %(default)s)', default=0.5)
     parser_style_mixing_example.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
 
-    parser_generate_images = subparsers.add_parser('generate-w-vectors', help='Generate w vectors')
-    parser_generate_images.add_argument('--network', help='Network pickle filename', dest='network_pkl', required=True)
-    parser_generate_images.add_argument('--seeds', type=_parse_num_range, help='List of random seeds', required=True)
-    parser_generate_images.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
+    parser_generate_w_vectors = subparsers.add_parser('generate-w-vectors', help='Generate w vectors')
+    parser_generate_w_vectors.add_argument('--network', help='Network pickle filename', dest='network_pkl', required=True)
+    parser_generate_w_vectors.add_argument('--seeds', type=_parse_num_range, help='List of random seeds', required=True)
+    parser_generate_w_vectors.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
+
+    parser_generate_images_from_w_vectors = subparsers.add_parser('generate-images-from-w-vectors', help='Generate images from w vectors')
+    parser_generate_images_from_w_vectors.add_argument('--network', help='Network pickle filename', dest='network_pkl', required=True)
+    parser_generate_images_from_w_vectors.add_argument('--w-vectors-file', type=str, help='name of .npy file with w vectors', required=True)
+    parser_generate_images_from_w_vectors.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
 
     args = parser.parse_args()
     kwargs = vars(args)
@@ -182,7 +205,8 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     func_name_map = {
         'generate-images': 'run_generator.generate_images',
         'style-mixing-example': 'run_generator.style_mixing_example',
-        'generate-w-vectors': 'run_generator.generate_w_vectors'
+        'generate-w-vectors': 'run_generator.generate_w_vectors',
+        'generate-images-from-w-vectors': 'run_generator.generate_images_from_w_vectors'
     }
     dnnlib.submit_run(sc, func_name_map[subcmd], **kwargs)
 
