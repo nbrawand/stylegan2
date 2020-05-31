@@ -127,7 +127,11 @@ def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file):
     all_w = np.load(w_vectors_file)
     seeds = np.load(seeds_file)
     boundary = np.load(boundary_file)
-    interpolated_ws = np.array([linear_interpolate(w, boundary, start_distance=-0.3, end_distance=0.3, steps=3) for w in all_w])
+    interpolations = []
+    for w in all_w:
+        interpolation = np.stack([linear_interpolate(w[w_layer_id:w_layer_id+1], boundary, start_distance=-0.3, end_distance=0.3, steps=3) for w_layer_id in range(w.shape[0])])
+        interpolations.append(interpolation)
+    interpolated_ws = np.array(interpolations)
     for seed, interpolations in zip(seeds, interpolated_ws):
         np.save(dnnlib.make_run_dir_path('seed%04d.png' % seed), interpolations)
 

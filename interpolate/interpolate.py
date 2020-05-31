@@ -1,3 +1,5 @@
+import numpy as np
+
 def linear_interpolate(latent_code,
                        boundary,
                        start_distance=-3.0,
