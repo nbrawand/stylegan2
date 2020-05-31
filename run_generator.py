@@ -105,10 +105,11 @@ def generate_w_vectors(network_pkl, seeds, truncation_psi):
 
 #----------------------------------------------------------------------------
 
-def generate_images_from_w_vectors(network_pkl, w_vectors_file):
+def generate_images_from_w_vectors(network_pkl, w_vectors_file, seeds_file):
     print('Loading networks from "%s"...' % network_pkl)
     _G, _D, Gs = pretrained_networks.load_networks(network_pkl)
     all_w = np.load(w_vectors_file)
+    seeds = np.load(seeds_file)
 
     Gs_syn_kwargs = dnnlib.EasyDict()
     Gs_syn_kwargs.output_transform = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
@@ -116,8 +117,8 @@ def generate_images_from_w_vectors(network_pkl, w_vectors_file):
 
     print('Generating images...')
     all_images = Gs.components.synthesis.run(all_w, **Gs_syn_kwargs) # [minibatch, height, width, channel]
-    for i, img in enumerate(all_images):
-        PIL.Image.fromarray(img, 'RGB').save(dnnlib.make_run_dir_path('img%04d.png' % i))
+    for seed, img in zip(seeds, all_images):
+        PIL.Image.fromarray(img, 'RGB').save(dnnlib.make_run_dir_path('seed%04d.png' % seed))
 
 
 #----------------------------------------------------------------------------
@@ -185,6 +186,7 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_generate_images_from_w_vectors = subparsers.add_parser('generate-images-from-w-vectors', help='Generate images from w vectors')
     parser_generate_images_from_w_vectors.add_argument('--network', help='Network pickle filename', dest='network_pkl', required=True)
     parser_generate_images_from_w_vectors.add_argument('--w-vectors-file', type=str, help='name of .npy file with w vectors', required=True)
+    parser_generate_images_from_w_vectors.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
     parser_generate_images_from_w_vectors.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
 
     args = parser.parse_args()
