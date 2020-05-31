@@ -11,6 +11,7 @@ import dnnlib
 import dnnlib.tflib as tflib
 import re
 import sys
+from interpolate.interpolate import linear_interpolate
 
 import pretrained_networks
 
@@ -120,6 +121,15 @@ def generate_images_from_w_vectors(network_pkl, w_vectors_file, seeds_file):
     for seed, img in zip(seeds, all_images):
         PIL.Image.fromarray(img, 'RGB').save(dnnlib.make_run_dir_path('seed%04d.png' % seed))
 
+#----------------------------------------------------------------------------
+
+def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file):
+    all_w = np.load(w_vectors_file)
+    seeds = np.load(seeds_file)
+    boundary = np.load(boundary_file)
+    interpolated_ws = np.array([linear_interpolate(w, boundary, start_distance=-0.3, end_distance=0.3, steps=3) for w in all_w])
+    for seed, interpolations in zip(seeds, interpolated_ws):
+        np.save(dnnlib.make_run_dir_path('seed%04d.png' % seed), interpolations)
 
 #----------------------------------------------------------------------------
 
@@ -189,6 +199,12 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_generate_images_from_w_vectors.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
     parser_generate_images_from_w_vectors.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
 
+    parser_interpolate_over_boundary = subparsers.add_parser('interpolate-over-boundary', help='Interpolate w vectors over boundary')
+    parser_interpolate_over_boundary.add_argument('--w-vectors-file', type=str, help='name of .npy file with w vectors', required=True)
+    parser_interpolate_over_boundary.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
+    parser_interpolate_over_boundary.add_argument('--boundary-file', type=str, help='name of .npy file with boundary', required=True)
+    parser_interpolate_over_boundary.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
+
     args = parser.parse_args()
     kwargs = vars(args)
     subcmd = kwargs.pop('command')
@@ -208,7 +224,8 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
         'generate-images': 'run_generator.generate_images',
         'style-mixing-example': 'run_generator.style_mixing_example',
         'generate-w-vectors': 'run_generator.generate_w_vectors',
-        'generate-images-from-w-vectors': 'run_generator.generate_images_from_w_vectors'
+        'generate-images-from-w-vectors': 'run_generator.generate_images_from_w_vectors',
+        'interpolate-over-boundary': 'run_generator.interpolate_over_boundary'
     }
     dnnlib.submit_run(sc, func_name_map[subcmd], **kwargs)
 
