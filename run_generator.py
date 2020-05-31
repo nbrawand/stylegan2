@@ -101,6 +101,7 @@ def generate_w_vectors(network_pkl, seeds, truncation_psi):
     all_w = Gs.components.mapping.run(all_z, None) # [minibatch, layer, component]
     all_w = w_avg + (all_w - w_avg) * truncation_psi # [minibatch, layer, component]
     np.save(dnnlib.make_run_dir_path('w_vectors.npy'), all_w)
+    np.save(dnnlib.make_run_dir_path('seeds.npy'), seeds)
 
 #----------------------------------------------------------------------------
 
