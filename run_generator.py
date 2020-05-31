@@ -133,7 +133,7 @@ def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file):
         interpolations.append(interpolation)
     interpolated_ws = np.array(interpolations)
     for seed, interpolations in zip(seeds, interpolated_ws):
-        np.save(dnnlib.make_run_dir_path('seed%04d.png' % seed), interpolations)
+        np.save(dnnlib.make_run_dir_path('seed%04d.npy' % seed), interpolations)
 
 #----------------------------------------------------------------------------
 
