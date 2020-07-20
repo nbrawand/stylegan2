@@ -129,11 +129,22 @@ def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file, start_d
     boundary = np.load(boundary_file)
     interpolations = []
     for w in all_w:
-        interpolation = np.stack([linear_interpolate(w[w_layer_id:w_layer_id+1], boundary, start_distance=start_distance, end_distance=end_distance, steps=steps) for w_layer_id in range(w.shape[0])])
+        interpolation = np.stack([linear_interpolate(w[w_layer_id:w_layer_id+1]
+                                                     , boundary, start_distance=start_distance, end_distance=end_distance, steps=steps) for w_layer_id in range(w.shape[0])])
         interpolations.append(interpolation)
     interpolated_ws = np.array(interpolations)
     for seed, interpolations in zip(seeds, interpolated_ws):
         np.save(dnnlib.make_run_dir_path('seed%04d.npy' % seed), interpolations.swapaxes(0, 1))
+
+#----------------------------------------------------------------------------
+
+def create_look_alike(w_vectors_file, seeds_file, start_distance, end_distance, steps):
+    all_w = np.load(w_vectors_file)
+    seeds = np.load(seeds_file)
+    lookalikes = np.array([w_avg + (all_w - w_avg) * truncation_psi\
+            for truncation_psi in np.arange(start_distance, end_distance, (end_distance-start_distance)/steps)])
+    for seed, lookalike in zip(seeds, lookalikes):
+        np.save(dnnlib.make_run_dir_path('seed%04d.npy' % seed), lookalike.swapaxes(0, 1))
 
 #----------------------------------------------------------------------------
 
@@ -211,6 +222,12 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_interpolate_over_boundary.add_argument('--start-distance', type=float, help='Start distance (default: %(default)s)', default=-3.0)
     parser_interpolate_over_boundary.add_argument('--end-distance', type=float, help='End distance (default: %(default)s)', default=3.0)
     parser_interpolate_over_boundary.add_argument('--steps', type=int, help='Steps (default: %(default)s)', default=3)
+
+    create_look_alikes = subparsers.add_parser('interpolate-over-boundary', help='Interpolate w vectors over boundary')
+    create_look_alikes.add_argument('--w-vectors-file', type=str, help='name of .npy file with w vectors', required=True)
+    create_look_alikes.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
+    create_look_alikes.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
+    create_look_alikes.add_argument('--number', type=int, help='Number of look alikes (default: %(default)s)', default=1)
 
     args = parser.parse_args()
     kwargs = vars(args)
