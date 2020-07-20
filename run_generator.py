@@ -146,7 +146,7 @@ def create_look_alikes(network_pkl, w_vectors_file, seeds_file, start_distance, 
     lookalikes = np.array([w_avg + (all_w - w_avg) * truncation_psi\
             for truncation_psi in np.arange(start_distance, end_distance, (end_distance-start_distance)/steps)])
     for seed, lookalike in zip(seeds, lookalikes):
-        np.save(dnnlib.make_run_dir_path('seed%04d.npy' % seed), lookalike.swapaxes(0, 1))
+        np.save(dnnlib.make_run_dir_path('seed%04d.npy' % seed), lookalike)
 
 #----------------------------------------------------------------------------
 
