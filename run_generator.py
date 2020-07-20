@@ -252,7 +252,8 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
         'style-mixing-example': 'run_generator.style_mixing_example',
         'generate-w-vectors': 'run_generator.generate_w_vectors',
         'generate-images-from-w-vectors': 'run_generator.generate_images_from_w_vectors',
-        'interpolate-over-boundary': 'run_generator.interpolate_over_boundary'
+        'interpolate-over-boundary': 'run_generator.interpolate_over_boundary',
+        'create-look-alikes': 'run_generator.create_look_alikes'
     }
     dnnlib.submit_run(sc, func_name_map[subcmd], **kwargs)
 
