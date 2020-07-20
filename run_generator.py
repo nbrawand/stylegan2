@@ -139,6 +139,7 @@ def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file, start_d
 #----------------------------------------------------------------------------
 
 def create_look_alikes(w_vectors_file, seeds_file, start_distance, end_distance, steps):
+    w_avg = Gs.get_var('dlatent_avg') # [component]
     all_w = np.load(w_vectors_file)
     seeds = np.load(seeds_file)
     lookalikes = np.array([w_avg + (all_w - w_avg) * truncation_psi\
