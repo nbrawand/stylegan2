@@ -223,7 +223,7 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_interpolate_over_boundary.add_argument('--end-distance', type=float, help='End distance (default: %(default)s)', default=3.0)
     parser_interpolate_over_boundary.add_argument('--steps', type=int, help='Steps (default: %(default)s)', default=3)
 
-    parser_create_look_alikes = subparsers.add_parser('interpolate-over-boundary', help='Interpolate w vectors over boundary')
+    parser_create_look_alikes = subparsers.add_parser('create-look-alikes', help='Interpolate w vectors over boundary')
     parser_create_look_alikes.add_argument('--w-vectors-file', type=str, help='name of .npy file with w vectors', required=True)
     parser_create_look_alikes.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
     parser_create_look_alikes.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
