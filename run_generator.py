@@ -123,13 +123,13 @@ def generate_images_from_w_vectors(network_pkl, w_vectors_file, seeds_file):
 
 #----------------------------------------------------------------------------
 
-def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file):
+def interpolate_over_boundary(w_vectors_file, seeds_file, boundary_file, start_distance, end_distance, steps):
     all_w = np.load(w_vectors_file)
     seeds = np.load(seeds_file)
     boundary = np.load(boundary_file)
     interpolations = []
     for w in all_w:
-        interpolation = np.stack([linear_interpolate(w[w_layer_id:w_layer_id+1], boundary, start_distance=-0.3, end_distance=0.3, steps=3) for w_layer_id in range(w.shape[0])])
+        interpolation = np.stack([linear_interpolate(w[w_layer_id:w_layer_id+1], boundary, start_distance=start_distance, end_distance=end_distance, steps=steps) for w_layer_id in range(w.shape[0])])
         interpolations.append(interpolation)
     interpolated_ws = np.array(interpolations)
     for seed, interpolations in zip(seeds, interpolated_ws):
@@ -208,6 +208,9 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_interpolate_over_boundary.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
     parser_interpolate_over_boundary.add_argument('--boundary-file', type=str, help='name of .npy file with boundary', required=True)
     parser_interpolate_over_boundary.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
+    parser_interpolate_over_boundary.add_argument('--start-distance', type=float, help='Start distance (default: %(default)s)', default=-3.0)
+    parser_interpolate_over_boundary.add_argument('--end-distance', type=float, help='End distance (default: %(default)s)', default=3.0)
+    parser_interpolate_over_boundary.add_argument('--steps', type=int, help='Steps (default: %(default)s)', default=3)
 
     args = parser.parse_args()
     kwargs = vars(args)
