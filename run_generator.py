@@ -230,7 +230,6 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     parser_create_look_alikes.add_argument('--steps', type=int, help='Number of look alikes (default: %(default)s)', default=1)
     parser_create_look_alikes.add_argument('--start-distance', type=float, help='Start distance (default: %(default)s)', default=-3.0)
     parser_create_look_alikes.add_argument('--end-distance', type=float, help='End distance (default: %(default)s)', default=3.0)
-    parser_create_look_alikes.add_argument('--steps', type=int, help='Steps (default: %(default)s)', default=3)
 
     args = parser.parse_args()
     kwargs = vars(args)
