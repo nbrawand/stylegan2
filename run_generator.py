@@ -228,6 +228,9 @@ Run 'python %(prog)s <subcommand> --help' for subcommand help.''',
     create_look_alikes.add_argument('--seeds-file', type=str, help='name of .npy file with seeds', required=True)
     create_look_alikes.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
     create_look_alikes.add_argument('--number', type=int, help='Number of look alikes (default: %(default)s)', default=1)
+    create_look_alikes.add_argument('--start-distance', type=float, help='Start distance (default: %(default)s)', default=-3.0)
+    create_look_alikes.add_argument('--end-distance', type=float, help='End distance (default: %(default)s)', default=3.0)
+    create_look_alikes.add_argument('--steps', type=int, help='Steps (default: %(default)s)', default=3)
 
     args = parser.parse_args()
     kwargs = vars(args)
